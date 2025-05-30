@@ -247,10 +247,10 @@
         pesan += `\n*Uang Diterima:* Rp ${uang.toLocaleString()}`;
         pesan += `\n*Kembalian:* Rp ${kembalian.toLocaleString()}`;
 
-        const nomor = "6285179856620";
-        const pesan = encodeURIComponent(`*Kasir Ramen*\n\n${items.map((item, i) => `${i + 1}. ${item.name} - Rp ${item.price.toLocaleString()}`).join('\n')}\n\n*Total:* Rp ${total.toLocaleString()}\n*Metode:* ${metode}\n*Uang Diterima:* Rp ${uang.toLocaleString()}\n*Kembalian:* Rp ${kembalian.toLocaleString()}`);
-        const waURL = `https://wa.me/${nomor}?text=${pesan}`;
-        window.location.href = waURL; // Lebih kompatibel daripada window.open
+        const nomorWA = "62879856620";
+        const waURL = `https://wa.me/${nomorWA}?text=${encodeURIComponent(pesan)}`;
+        window.location.href = waURL;
+
 
 
         alert("Data berhasil dikirim!");

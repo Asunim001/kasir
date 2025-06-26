@@ -64,14 +64,14 @@
     <h2>Laporan Penjualan Kedai Anteiku</h2>
 
     <div class="filter-group">
-      <select id="jenisLaporan" onchange="renderFilterInput()">
+      <select id="jenisLaporan">
         <option value="harian">Harian</option>
         <option value="mingguan">Mingguan</option>
         <option value="bulanan">Bulanan</option>
       </select>
 
       <div id="filterInput">
-        <input type="date" id="filterDate" onchange="applyFilter()" />
+        <input type="date" id="filterDate" />
       </div>
     </div>
 
@@ -94,7 +94,7 @@
   </div>
 
   <script>
-    // Ganti URL di bawah ini dengan URL Web App dari Google Apps Script kamu
+    // ✅ Ganti ini dengan URL Web App kamu
     const sheetUrl = "https://corsproxy.io/?https://script.google.com/macros/s/AKfycbwx8WKR-Cpfkdc7Ep1lEXrZt7wvCpHMJFG9BkxSuJyZtf9s9OvmOam-OmZ1G1Oi8mwnTQ/exec";
 
     let semuaData = [];
@@ -103,7 +103,7 @@
       try {
         const res = await fetch(sheetUrl);
         const data = await res.json();
-        semuaData = data.slice(1); // skip header baris pertama
+        semuaData = data.slice(1); // Hilangkan header
         applyFilter();
       } catch (err) {
         alert("Gagal mengambil data laporan.");
@@ -116,14 +116,18 @@
       const container = document.getElementById("filterInput");
 
       if (jenis === "harian") {
-        container.innerHTML = `<input type="date" id="filterDate" onchange="applyFilter()">`;
+        container.innerHTML = `<input type="date" id="filterDate">`;
+        document.getElementById("filterDate").addEventListener("change", applyFilter);
       } else if (jenis === "mingguan") {
         container.innerHTML = `
-          Dari: <input type="date" id="startDate" onchange="applyFilter()">
-          Sampai: <input type="date" id="endDate" onchange="applyFilter()">
+          Dari: <input type="date" id="startDate">
+          Sampai: <input type="date" id="endDate">
         `;
+        document.getElementById("startDate").addEventListener("change", applyFilter);
+        document.getElementById("endDate").addEventListener("change", applyFilter);
       } else if (jenis === "bulanan") {
-        container.innerHTML = `<input type="month" id="filterMonth" onchange="applyFilter()">`;
+        container.innerHTML = `<input type="month" id="filterMonth">`;
+        document.getElementById("filterMonth").addEventListener("change", applyFilter);
       }
     }
 
@@ -181,6 +185,7 @@
     window.onload = () => {
       renderFilterInput();
       fetchData();
+      document.getElementById("jenisLaporan").addEventListener("change", renderFilterInput);
     };
   </script>
 </body>

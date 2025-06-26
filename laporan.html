@@ -71,7 +71,6 @@
       </select>
 
       <div id="filterInput">
-        <!-- Filter input akan diganti dinamis -->
         <input type="date" id="filterDate" onchange="applyFilter()" />
       </div>
     </div>
@@ -95,44 +94,16 @@
   </div>
 
   <script>
-    const sheetUrl = "function doGet() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Transaksi");
-  const data = sheet.getDataRange().getValues();
-  return ContentService
-    .createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader("Access-Control-Allow-Origin", "*");
-}
+    // Ganti URL di bawah ini dengan URL Web App dari Google Apps Script kamu
+    const sheetUrl = "https://corsproxy.io/?https://script.google.com/macros/s/AKfycbwx8WKR-Cpfkdc7Ep1lEXrZt7wvCpHMJFG9BkxSuJyZtf9s9OvmOam-OmZ1G1Oi8mwnTQ/exec";
 
-function doPost(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Transaksi");
-  const data = JSON.parse(e.postData.contents);
-
-  const items = data.items.map(item => item.name + " - Rp " + item.price).join(", ");
-  const waktu = new Date();
-
-  sheet.appendRow([
-    waktu,
-    items,
-    data.total,
-    data.uang,
-    data.kembalian,
-    data.metode
-  ]);
-
-  return ContentService
-    .createTextOutput("OK")
-    .setMimeType(ContentService.MimeType.TEXT)
-    .setHeader("Access-Control-Allow-Origin", "*");
-}
-";
     let semuaData = [];
 
     async function fetchData() {
       try {
         const res = await fetch(sheetUrl);
         const data = await res.json();
-        semuaData = data.slice(1); // Hilangkan header
+        semuaData = data.slice(1); // skip header baris pertama
         applyFilter();
       } catch (err) {
         alert("Gagal mengambil data laporan.");

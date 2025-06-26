@@ -94,8 +94,8 @@
   </div>
 
   <script>
-    // ✅ Ganti ini dengan URL Web App kamu
-    const sheetUrl = "https://corsproxy.io/?https://script.google.com/macros/s/AKfycbwx8WKR-Cpfkdc7Ep1lEXrZt7wvCpHMJFG9BkxSuJyZtf9s9OvmOam-OmZ1G1Oi8mwnTQ/exec";
+    // ✅ Ganti dengan Web App URL kamu
+    const sheetUrl = "https://script.google.com/macros/s/AKfycbwx8WKR-Cpfkdc7Ep1lEXrZt7wvCpHMJFG9BkxSuJyZtf9s9OvmOam-OmZ1G1Oi8mwnTQ/exec";
 
     let semuaData = [];
 
@@ -104,7 +104,7 @@
         const res = await fetch(sheetUrl);
         const data = await res.json();
         semuaData = data.slice(1); // Hilangkan header
-        applyFilter();
+        applyFilter(); // Tampilkan awal
       } catch (err) {
         alert("Gagal mengambil data laporan.");
         console.error(err);
@@ -150,7 +150,7 @@
           return rowDate >= startDate && rowDate <= endDate;
         });
       } else if (jenis === "bulanan") {
-        const bulan = document.getElementById("filterMonth").value; // format: yyyy-mm
+        const bulan = document.getElementById("filterMonth").value;
         hasil = semuaData.filter(row => row[0].startsWith(bulan));
       }
 

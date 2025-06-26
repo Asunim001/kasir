@@ -95,7 +95,37 @@
   </div>
 
   <script>
-    const sheetUrl = "https://script.google.com/macros/s/AKfycbzEIuYI8BejFS7yLipQEtFqUJhPb1TMLIKM4vBwZIas6QcQR1g8oIq7o5XJ9dUYV5AEBg/exec";
+    const sheetUrl = "function doGet() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Transaksi");
+  const data = sheet.getDataRange().getValues();
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeader("Access-Control-Allow-Origin", "*");
+}
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Transaksi");
+  const data = JSON.parse(e.postData.contents);
+
+  const items = data.items.map(item => item.name + " - Rp " + item.price).join(", ");
+  const waktu = new Date();
+
+  sheet.appendRow([
+    waktu,
+    items,
+    data.total,
+    data.uang,
+    data.kembalian,
+    data.metode
+  ]);
+
+  return ContentService
+    .createTextOutput("OK")
+    .setMimeType(ContentService.MimeType.TEXT)
+    .setHeader("Access-Control-Allow-Origin", "*");
+}
+";
     let semuaData = [];
 
     async function fetchData() {

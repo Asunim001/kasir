@@ -4,31 +4,40 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Laporan Omzet Kedai Anteiku</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-      background-color: #fff3e0;
-      padding: 20px;
+      background: #fff3e0;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 40px;
     }
     .container {
-      background-color: white;
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
       border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     h2 {
-      color: #e53935;
-      margin-bottom: 20px;
       text-align: center;
+      color: #e53935;
+      margin-bottom: 30px;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .result {
+      margin-top: 15px;
+      font-size: 16px;
+      font-weight: 500;
     }
     footer {
       margin-top: 40px;
       text-align: center;
-      font-size: 13px;
-      color: #777;
-    }
-    .form-label {
-      font-weight: bold;
+      font-size: 14px;
+      color: #888;
     }
   </style>
 </head>
@@ -36,19 +45,13 @@
   <div class="container">
     <h2>Laporan Omzet Kedai Anteiku</h2>
 
-    <!-- PILIH TANGGAL -->
-    <div class="mb-4">
-      <label class="form-label">Pilih Tanggal (Omzet Harian)</label>
-      <input type="date" id="filterTanggal" class="form-control" onchange="filterHarian()" />
-      <div id="hasilHarian" class="mt-2 fw-bold"></div>
-    </div>
+    <label for="tanggal">Pilih Tanggal (Omzet Harian)</label>
+    <input type="date" id="tanggal" class="form-control" />
+    <div class="result" id="hasilHarian">Silakan pilih tanggal.</div>
 
-    <!-- PILIH BULAN -->
-    <div class="mb-4">
-      <label class="form-label">Pilih Bulan (Omzet Bulanan)</label>
-      <input type="month" id="filterBulan" class="form-control" onchange="filterBulanan()" />
-      <div id="hasilBulanan" class="mt-2 fw-bold"></div>
-    </div>
+    <label for="bulan">Pilih Bulan (Omzet Bulanan)</label>
+    <input type="month" id="bulan" class="form-control" />
+    <div class="result" id="hasilBulanan">Silakan pilih bulan.</div>
   </div>
 
   <footer>
@@ -56,54 +59,45 @@
   </footer>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwdbXs5zsDf0AcSRjt6JGKUNn4jRIgyr1cARbqgVymeFeB56xXe7iamNcnU19XsWI7S1g/exec"; // GANTI DENGAN URL WEB APP KAMU
+    const url = "https://script.google.com/macros/s/AKfycbwdbXs5zsDf0AcSRjt6JGKUNn4jRIgyr1cARbqgVymeFeB56xXe7iamNcnU19XsWI7S1g/exec";
+    let dataLaporan = { harian: [], bulanan: [] };
 
-    let dataHarian = [];
-    let dataBulanan = [];
-
-    // Ambil data dari Google Sheet (via Apps Script)
-    fetch(scriptURL + "?action=laporan")
+    // Ambil data laporan dari Apps Script
+    fetch(url)
       .then(res => res.json())
       .then(data => {
-        dataHarian = data.harian || [];
-        dataBulanan = data.bulanan || [];
-      })
-      .catch(err => {
-        alert("Gagal memuat data laporan.");
-        console.error(err);
+        dataLaporan = data;
       });
 
-    function filterHarian() {
-      const tanggalInput = document.getElementById("filterTanggal").value;
-      const hasilDiv = document.getElementById("hasilHarian");
-      if (!tanggalInput) {
-        hasilDiv.innerText = "Silakan pilih tanggal.";
-        return;
-      }
+    document.getElementById("tanggal").addEventListener("change", function () {
+      const tgl = this.value; // format: yyyy-mm-dd
+      const found = dataLaporan.harian.find(r => r.tanggal === tgl);
+      const el = document.getElementById("hasilHarian");
 
-      const result = dataHarian.find(item => item.tanggal === tanggalInput);
-      if (result) {
-        hasilDiv.innerText = `Total Penjualan tanggal ${tanggalInput}: Rp ${Number(result.total).toLocaleString()}`;
+      if (found) {
+        el.innerHTML = `
+          Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
+          Transaksi: ${found.transaksi}
+        `;
       } else {
-        hasilDiv.innerText = `Tidak ada data untuk tanggal ${tanggalInput}.`;
+        el.innerText = `Tidak ada data untuk tanggal ${tgl}.`;
       }
-    }
+    });
 
-    function filterBulanan() {
-      const bulanInput = document.getElementById("filterBulan").value;
-      const hasilDiv = document.getElementById("hasilBulanan");
-      if (!bulanInput) {
-        hasilDiv.innerText = "Silakan pilih bulan.";
-        return;
-      }
+    document.getElementById("bulan").addEventListener("change", function () {
+      const bln = this.value; // format: yyyy-mm
+      const found = dataLaporan.bulanan.find(r => r.bulan === bln);
+      const el = document.getElementById("hasilBulanan");
 
-      const result = dataBulanan.find(item => item.bulan === bulanInput);
-      if (result) {
-        hasilDiv.innerText = `Total Penjualan bulan ${bulanInput}: Rp ${Number(result.total).toLocaleString()}`;
+      if (found) {
+        el.innerHTML = `
+          Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
+          Transaksi: ${found.transaksi}
+        `;
       } else {
-        hasilDiv.innerText = `Tidak ada data untuk bulan ${bulanInput}.`;
+        el.innerText = `Tidak ada data untuk bulan ${bln}.`;
       }
-    }
+    });
   </script>
 </body>
 </html>

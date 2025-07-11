@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Laporan Omzet - Kedai Anteiku</title>
+  <title>Laporan Omzet Kedai Anteiku</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <style>
     body {
@@ -21,15 +21,14 @@
       margin-bottom: 20px;
       text-align: center;
     }
-    table {
-      margin-top: 20px;
-      font-size: 14px;
-    }
     footer {
       margin-top: 40px;
       text-align: center;
       font-size: 13px;
       color: #777;
+    }
+    .form-label {
+      font-weight: bold;
     }
   </style>
 </head>
@@ -37,24 +36,18 @@
   <div class="container">
     <h2>Laporan Omzet Kedai Anteiku</h2>
 
-    <h5>Omzet Harian</h5>
-    <div class="table-responsive">
-      <table class="table table-bordered table-sm" id="harianTable">
-        <thead class="table-danger">
-          <tr><th>Tanggal</th><th>Total Penjualan</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <!-- PILIH TANGGAL -->
+    <div class="mb-4">
+      <label class="form-label">Pilih Tanggal (Omzet Harian)</label>
+      <input type="date" id="filterTanggal" class="form-control" onchange="filterHarian()" />
+      <div id="hasilHarian" class="mt-2 fw-bold"></div>
     </div>
 
-    <h5 class="mt-4">Omzet Bulanan</h5>
-    <div class="table-responsive">
-      <table class="table table-bordered table-sm" id="bulananTable">
-        <thead class="table-danger">
-          <tr><th>Bulan</th><th>Total Penjualan</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <!-- PILIH BULAN -->
+    <div class="mb-4">
+      <label class="form-label">Pilih Bulan (Omzet Bulanan)</label>
+      <input type="month" id="filterBulan" class="form-control" onchange="filterBulanan()" />
+      <div id="hasilBulanan" class="mt-2 fw-bold"></div>
     </div>
   </div>
 
@@ -63,29 +56,54 @@
   </footer>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwbagk8ASVdiUfAeiTV6Gx5U50I19Ws0jEvckME76V586ZTuYcmyIy6X3t8cWzAka1RIg/exec"; // Ganti dengan URL Apps Script
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwbagk8ASVdiUfAeiTV6Gx5U50I19Ws0jEvckME76V586ZTuYcmyIy6X3t8cWzAka1RIg/exec"; // GANTI DENGAN URL WEB APP KAMU
 
-    // Ambil data laporan
+    let dataHarian = [];
+    let dataBulanan = [];
+
+    // Ambil data dari Google Sheet (via Apps Script)
     fetch(scriptURL + "?action=laporan")
       .then(res => res.json())
       .then(data => {
-        const harian = data.harian || [];
-        const bulanan = data.bulanan || [];
-
-        const tbodyHarian = document.querySelector("#harianTable tbody");
-        harian.forEach(row => {
-          tbodyHarian.innerHTML += `<tr><td>${row.tanggal}</td><td>Rp ${Number(row.total).toLocaleString()}</td></tr>`;
-        });
-
-        const tbodyBulanan = document.querySelector("#bulananTable tbody");
-        bulanan.forEach(row => {
-          tbodyBulanan.innerHTML += `<tr><td>${row.bulan}</td><td>Rp ${Number(row.total).toLocaleString()}</td></tr>`;
-        });
+        dataHarian = data.harian || [];
+        dataBulanan = data.bulanan || [];
       })
       .catch(err => {
-        alert("Gagal memuat laporan.");
+        alert("Gagal memuat data laporan.");
         console.error(err);
       });
+
+    function filterHarian() {
+      const tanggalInput = document.getElementById("filterTanggal").value;
+      const hasilDiv = document.getElementById("hasilHarian");
+      if (!tanggalInput) {
+        hasilDiv.innerText = "Silakan pilih tanggal.";
+        return;
+      }
+
+      const result = dataHarian.find(item => item.tanggal === tanggalInput);
+      if (result) {
+        hasilDiv.innerText = `Total Penjualan tanggal ${tanggalInput}: Rp ${Number(result.total).toLocaleString()}`;
+      } else {
+        hasilDiv.innerText = `Tidak ada data untuk tanggal ${tanggalInput}.`;
+      }
+    }
+
+    function filterBulanan() {
+      const bulanInput = document.getElementById("filterBulan").value;
+      const hasilDiv = document.getElementById("hasilBulanan");
+      if (!bulanInput) {
+        hasilDiv.innerText = "Silakan pilih bulan.";
+        return;
+      }
+
+      const result = dataBulanan.find(item => item.bulan === bulanInput);
+      if (result) {
+        hasilDiv.innerText = `Total Penjualan bulan ${bulanInput}: Rp ${Number(result.total).toLocaleString()}`;
+      } else {
+        hasilDiv.innerText = `Tidak ada data untuk bulan ${bulanInput}.`;
+      }
+    }
   </script>
 </body>
 </html>

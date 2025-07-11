@@ -3,190 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Laporan Penjualan - Kedai Anteiku</title>
+  <title>Laporan Omzet - Kedai Anteiku</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #fbe9e7;
-      margin: 0;
+      background-color: #fff3e0;
       padding: 20px;
     }
     .container {
-      background: white;
+      background-color: white;
       border-radius: 16px;
-      max-width: 900px;
-      margin: auto;
       padding: 24px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
     h2 {
-      text-align: center;
       color: #e53935;
-    }
-    select, input {
-      padding: 10px;
-      font-size: 16px;
-      margin: 10px 5px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      text-align: center;
     }
     table {
-      width: 100%;
-      border-collapse: collapse;
       margin-top: 20px;
       font-size: 14px;
     }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    th {
-      background-color: #e53935;
-      color: white;
-    }
-    .totalBox {
-      margin-top: 15px;
-      font-weight: bold;
-      text-align: right;
-      font-size: 16px;
-    }
-    .filter-group {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 13px;
+      color: #777;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Laporan Penjualan Kedai Anteiku</h2>
+    <h2>Laporan Omzet Kedai Anteiku</h2>
 
-    <div class="filter-group">
-      <select id="jenisLaporan">
-        <option value="harian">Harian</option>
-        <option value="mingguan">Mingguan</option>
-        <option value="bulanan">Bulanan</option>
-      </select>
-
-      <div id="filterInput">
-        <input type="date" id="filterDate" />
-      </div>
+    <h5>Omzet Harian</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm" id="harianTable">
+        <thead class="table-danger">
+          <tr><th>Tanggal</th><th>Total Penjualan</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
 
-    <table id="laporanTable">
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Tanggal</th>
-          <th>Barang</th>
-          <th>Total</th>
-          <th>Uang</th>
-          <th>Kembalian</th>
-          <th>Metode</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <div class="totalBox" id="totalDisplay">Total Penjualan: Rp 0</div>
+    <h5 class="mt-4">Omzet Bulanan</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm" id="bulananTable">
+        <thead class="table-danger">
+          <tr><th>Bulan</th><th>Total Penjualan</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
+  <footer>
+    &copy; Kedai Anteiku 2025 - Laporan Omzet
+  </footer>
+
   <script>
-    // ✅ Ganti dengan Web App URL kamu
-   const sheetUrl = "https://corsproxy.io/?https://script.google.com/macros/s/AKfycbwx8WKR-Cpfkdc7Ep1lEXrZt7wvCpHMJFG9BkxSuJyZtf9s9OvmOam-OmZ1G1Oi8mwnTQ/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwbagk8ASVdiUfAeiTV6Gx5U50I19Ws0jEvckME76V586ZTuYcmyIy6X3t8cWzAka1RIg/exec"; // Ganti dengan URL Apps Script
 
-    let semuaData = [];
+    // Ambil data laporan
+    fetch(scriptURL + "?action=laporan")
+      .then(res => res.json())
+      .then(data => {
+        const harian = data.harian || [];
+        const bulanan = data.bulanan || [];
 
-    async function fetchData() {
-      try {
-        const res = await fetch(sheetUrl);
-        const data = await res.json();
-        semuaData = data.slice(1); // Hilangkan header
-        applyFilter(); // Tampilkan awal
-      } catch (err) {
-        alert("Gagal mengambil data laporan.");
-        console.error(err);
-      }
-    }
-
-    function renderFilterInput() {
-      const jenis = document.getElementById("jenisLaporan").value;
-      const container = document.getElementById("filterInput");
-
-      if (jenis === "harian") {
-        container.innerHTML = `<input type="date" id="filterDate">`;
-        document.getElementById("filterDate").addEventListener("change", applyFilter);
-      } else if (jenis === "mingguan") {
-        container.innerHTML = `
-          Dari: <input type="date" id="startDate">
-          Sampai: <input type="date" id="endDate">
-        `;
-        document.getElementById("startDate").addEventListener("change", applyFilter);
-        document.getElementById("endDate").addEventListener("change", applyFilter);
-      } else if (jenis === "bulanan") {
-        container.innerHTML = `<input type="month" id="filterMonth">`;
-        document.getElementById("filterMonth").addEventListener("change", applyFilter);
-      }
-    }
-
-    function applyFilter() {
-      const jenis = document.getElementById("jenisLaporan").value;
-      let hasil = [];
-
-      if (jenis === "harian") {
-        const tanggal = document.getElementById("filterDate").value;
-        hasil = semuaData.filter(row => row[0].split("T")[0] === tanggal);
-      } else if (jenis === "mingguan") {
-        const start = document.getElementById("startDate").value;
-        const end = document.getElementById("endDate").value;
-        if (!start || !end) return renderTable([]);
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-
-        hasil = semuaData.filter(row => {
-          const rowDate = new Date(row[0]);
-          return rowDate >= startDate && rowDate <= endDate;
+        const tbodyHarian = document.querySelector("#harianTable tbody");
+        harian.forEach(row => {
+          tbodyHarian.innerHTML += `<tr><td>${row.tanggal}</td><td>Rp ${Number(row.total).toLocaleString()}</td></tr>`;
         });
-      } else if (jenis === "bulanan") {
-        const bulan = document.getElementById("filterMonth").value;
-        hasil = semuaData.filter(row => row[0].startsWith(bulan));
-      }
 
-      renderTable(hasil);
-    }
-
-    function renderTable(data) {
-      const tbody = document.querySelector("#laporanTable tbody");
-      const totalBox = document.getElementById("totalDisplay");
-      tbody.innerHTML = "";
-      let totalAll = 0;
-
-      data.forEach((row, i) => {
-        const [tanggal, barang, total, uang, kembalian, metode] = row;
-        totalAll += parseInt(total || 0);
-        tbody.innerHTML += `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${tanggal}</td>
-            <td>${barang}</td>
-            <td>Rp ${parseInt(total).toLocaleString()}</td>
-            <td>Rp ${parseInt(uang).toLocaleString()}</td>
-            <td>Rp ${parseInt(kembalian).toLocaleString()}</td>
-            <td>${metode}</td>
-          </tr>
-        `;
+        const tbodyBulanan = document.querySelector("#bulananTable tbody");
+        bulanan.forEach(row => {
+          tbodyBulanan.innerHTML += `<tr><td>${row.bulan}</td><td>Rp ${Number(row.total).toLocaleString()}</td></tr>`;
+        });
+      })
+      .catch(err => {
+        alert("Gagal memuat laporan.");
+        console.error(err);
       });
-
-      totalBox.innerText = `Total Penjualan: Rp ${totalAll.toLocaleString()}`;
-    }
-
-    window.onload = () => {
-      renderFilterInput();
-      fetchData();
-      document.getElementById("jenisLaporan").addEventListener("change", renderFilterInput);
-    };
   </script>
 </body>
 </html>

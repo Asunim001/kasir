@@ -60,14 +60,6 @@
       font-size: 13px;
       color: #777;
     }
-    @media (max-width: 576px) {
-      h2 {
-        font-size: 22px;
-      }
-      table {
-        font-size: 13px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -152,7 +144,6 @@
     function tambah() {
       const barang = document.getElementById("barang").value;
       const topping = document.getElementById("topping").value;
-
       if (!barang) return alert("Pilih barang dulu!");
 
       const hargaBarang = barangHarga[barang];
@@ -207,36 +198,37 @@
 
       const kembalian = uang - total;
       const data = {
-        items,
-        total,
-        uang,
-        kembalian,
-        metode
+        items: items,
+        total: total,
+        uang: uang,
+        kembalian: kembalian,
+        metode: metode
       };
 
+      // Kirim ke Google Sheets (jalan di background)
       fetch("https://script.google.com/macros/s/AKfycbwqLWL2VN8kk0X-0uuTQrBJqYuMvOIUApEbH3gVO015lFbQsOz5lH-UMC6VFEtI2IM9QA/exec", {
         method: "POST",
         body: JSON.stringify(data),
         mode: "no-cors"
-      }).then(() => {
-        let pesan = `*Kedai Anteiku*\n\n`;
-        items.forEach((item, i) => {
-          pesan += `${i + 1}. ${item.name} - Rp ${item.price.toLocaleString()}\n`;
-        });
-        pesan += `\n*Total:* Rp ${total.toLocaleString()}`;
-        pesan += `\n*Metode:* ${metode}`;
-        pesan += `\n*Uang Diterima:* Rp ${uang.toLocaleString()}`;
-        pesan += `\n*Kembalian:* Rp ${kembalian.toLocaleString()}`;
-
-        const nomorWA = "6285179856620";
-        const waURL = `https://wa.me/${nomorWA}?text=${encodeURIComponent(pesan)}`;
-        window.open(waURL, "_blank");
-
-        alert("Data berhasil dikirim!");
-        resetData();
-      }).catch(() => {
-        alert("Gagal mengirim data.");
       });
+
+      // Buka WhatsApp langsung agar tidak diblok
+      let pesan = `*Kedai Anteiku*\n\n`;
+      items.forEach((item, i) => {
+        pesan += `${i + 1}. ${item.name} - Rp ${item.price.toLocaleString()}\n`;
+      });
+      pesan += `\n*Total:* Rp ${total.toLocaleString()}`;
+      pesan += `\n*Metode:* ${metode}`;
+      pesan += `\n*Uang Diterima:* Rp ${uang.toLocaleString()}`;
+      pesan += `\n*Kembalian:* Rp ${kembalian.toLocaleString()}`;
+      const nomorWA = "6285179856620";
+      const waURL = `https://wa.me/${nomorWA}?text=${encodeURIComponent(pesan)}`;
+      window.location.href = waURL;
+
+      setTimeout(() => {
+        alert("Transaksi berhasil dikirim!");
+        resetData();
+      }, 1000);
     }
 
     function resetData() {

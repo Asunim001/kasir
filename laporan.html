@@ -3,113 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Laporan Omzet Kedai Anteiku</title>
+  <title>Laporan Harian - Kedai Anteiku</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-      background: #fff3e0;
+      background-color: #fff3e0;
+      padding: 20px;
       font-family: 'Segoe UI', sans-serif;
-      padding: 30px;
     }
     .container {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
       max-width: 600px;
       margin: auto;
-      background: #fff;
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
     h2 {
-      text-align: center;
       color: #e53935;
-      margin-bottom: 30px;
-    }
-    label {
-      font-weight: bold;
-      margin-top: 20px;
+      text-align: center;
+      margin-bottom: 20px;
     }
     .result {
-      margin-top: 15px;
-      font-size: 16px;
-      font-weight: 500;
+      margin-top: 20px;
+    }
+    .item-list {
+      margin-top: 10px;
+    }
+    .item-list li {
+      font-size: 14px;
     }
     footer {
-      margin-top: 40px;
+      margin-top: 30px;
       text-align: center;
-      font-size: 14px;
-      color: #888;
+      font-size: 13px;
+      color: #777;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Laporan Omzet Kedai Anteiku</h2>
+    <h2>Laporan Harian Kedai Anteiku</h2>
 
-    <label for="tanggal">Pilih Tanggal (Omzet Harian)</label>
+    <label for="tanggal">Pilih Tanggal</label>
     <input type="date" id="tanggal" class="form-control" />
-    <div class="result" id="hasilHarian">Silakan pilih tanggal.</div>
 
-    <label for="bulan">Pilih Bulan (Omzet Bulanan)</label>
-    <input type="month" id="bulan" class="form-control" />
-    <div class="result" id="hasilBulanan">Silakan pilih bulan.</div>
-
-    <div class="alert alert-danger mt-3 d-none" id="errorBox"></div>
+    <div class="result" id="hasil">
+      Silakan pilih tanggal.
+    </div>
   </div>
 
-  <footer>
-    &copy; Kedai Anteiku 2025 - Laporan Omzet
-  </footer>
+  <footer>&copy; Kedai Anteiku 2025</footer>
 
   <script>
-  const scriptUrl = "https://script.google.com/macros/s/AKfycbwMigpS1qTCoX90DZeUrUdI8ZZgvIlJuROE4Gx_ZrHEFRH66JrPYldOrdv5Ws4tsvdI7Q/exec";
-const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(scriptUrl);
+    const URL = "https://script.google.com/macros/s/AKfycbwMigpS1qTCoX90DZeUrUdI8ZZgvIlJuROE4Gx_ZrHEFRH66JrPYldOrdv5Ws4tsvdI7Q/exec?action=transaksi";
 
-fetch(proxyUrl)
-  .then(res => res.json())
-  .then(data => {
-    dataLaporan = data;
-  })
-  .catch(err => {
-    console.error("Gagal fetch:", err);
-    document.getElementById("hasilHarian").innerHTML =
-      `<div class="alert alert-danger mt-3">Gagal memuat data laporan.<br>${err.message}</div>`;
-  });
+    let semuaTransaksi = [];
 
-      })
-      .catch(err => {
-        document.getElementById("errorBox").classList.remove("d-none");
-        document.getElementById("errorBox").innerText = `Gagal memuat data laporan. ${err.message}`;
+    async function ambilData() {
+      try {
+        const res = await fetch(URL);
+        const json = await res.json();
+        semuaTransaksi = json.transaksi || [];
+      } catch (err) {
+        document.getElementById("hasil").innerHTML = `
+          <div class="alert alert-danger mt-3">Gagal mengambil data transaksi. Periksa koneksi atau URL Apps Script Anda.</div>
+        `;
+      }
+    }
+
+    function renderLaporan(tanggal) {
+      const filtered = semuaTransaksi.filter(item => item.tanggal === tanggal);
+      const el = document.getElementById("hasil");
+
+      if (filtered.length === 0) {
+        el.innerHTML = `<div class="alert alert-warning">Tidak ada data untuk tanggal ${tanggal}.</div>`;
+        return;
+      }
+
+      let total = 0;
+      const itemMap = {};
+
+      filtered.forEach(tx => {
+        total += Number(tx.total);
+        if (Array.isArray(tx.items)) {
+          tx.items.forEach(i => {
+            itemMap[i.name] = (itemMap[i.name] || 0) + 1;
+          });
+        }
       });
 
+      let listHTML = `<ul class="item-list">`;
+      for (const [nama, jumlah] of Object.entries(itemMap)) {
+        listHTML += `<li>${nama} - ${jumlah}x</li>`;
+      }
+      listHTML += `</ul>`;
+
+      el.innerHTML = `
+        <div><strong>Tanggal:</strong> ${tanggal}</div>
+        <div><strong>Total Transaksi:</strong> ${filtered.length}</div>
+        <div><strong>Total Omzet:</strong> Rp ${total.toLocaleString("id-ID")}</div>
+        <div class="mt-2"><strong>Detail Barang Terjual:</strong>${listHTML}</div>
+      `;
+    }
+
     document.getElementById("tanggal").addEventListener("change", function () {
-      const tgl = this.value; // format: yyyy-mm-dd
-      const found = dataLaporan.harian.find(r => r.tanggal === tgl);
-      const el = document.getElementById("hasilHarian");
-
-      if (found) {
-        el.innerHTML = `
-          Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
-          Transaksi: ${found.transaksi}
-        `;
-      } else {
-        el.innerText = `Tidak ada data untuk tanggal ${tgl}.`;
-      }
+      const tgl = this.value;
+      renderLaporan(tgl);
     });
 
-    document.getElementById("bulan").addEventListener("change", function () {
-      const bln = this.value; // format: yyyy-mm
-      const found = dataLaporan.bulanan.find(r => r.bulan === bln);
-      const el = document.getElementById("hasilBulanan");
-
-      if (found) {
-        el.innerHTML = `
-          Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
-          Transaksi: ${found.transaksi}
-        `;
-      } else {
-        el.innerText = `Tidak ada data untuk bulan ${bln}.`;
-      }
-    });
+    ambilData();
   </script>
 </body>
 </html>

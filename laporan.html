@@ -61,15 +61,20 @@
   </footer>
 
   <script>
-    const originalURL = "https://script.google.com/macros/s/AKfycbyvnIdQAIeP1MZCeZAWboXNjTaWPQti9g2yiXlJ9XHwctlaTuIUQHW3IbggKRpcIw-DSg/exec?action=laporan";
-    const proxyURL = "https://api.allorigins.win/get?url=" + encodeURIComponent(originalURL);
+  const scriptUrl = "https://script.google.com/macros/s/AKfycbwMigpS1qTCoX90DZeUrUdI8ZZgvIlJuROE4Gx_ZrHEFRH66JrPYldOrdv5Ws4tsvdI7Q/exec";
+const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(scriptUrl);
 
-    let dataLaporan = { harian: [], bulanan: [] };
+fetch(proxyUrl)
+  .then(res => res.json())
+  .then(data => {
+    dataLaporan = data;
+  })
+  .catch(err => {
+    console.error("Gagal fetch:", err);
+    document.getElementById("hasilHarian").innerHTML =
+      `<div class="alert alert-danger mt-3">Gagal memuat data laporan.<br>${err.message}</div>`;
+  });
 
-    fetch(proxyURL)
-      .then(res => res.json())
-      .then(result => {
-        dataLaporan = JSON.parse(result.contents);
       })
       .catch(err => {
         document.getElementById("errorBox").classList.remove("d-none");

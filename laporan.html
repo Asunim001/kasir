@@ -9,7 +9,7 @@
     body {
       background: #fff3e0;
       font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
+      padding: 40px 10px;
     }
     .container {
       max-width: 600px;
@@ -25,22 +25,23 @@
       margin-bottom: 30px;
     }
     label {
-      font-weight: 600;
+      font-weight: bold;
       margin-top: 20px;
     }
     .result {
       margin-top: 10px;
-      font-size: 15px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .alert {
+      margin-top: 20px;
+      text-align: center;
     }
     footer {
       margin-top: 40px;
       text-align: center;
-      font-size: 13px;
-      color: #999;
-    }
-    .spinner-border {
-      display: block;
-      margin: 20px auto;
+      font-size: 14px;
+      color: #888;
     }
   </style>
 </head>
@@ -56,12 +57,7 @@
     <input type="month" id="bulan" class="form-control" />
     <div class="result" id="hasilBulanan">Silakan pilih bulan.</div>
 
-    <div id="loading" class="text-center">
-      <div class="spinner-border text-danger" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p>Memuat data laporan...</p>
-    </div>
+    <div id="error" class="alert alert-danger d-none"></div>
   </div>
 
   <footer>
@@ -69,50 +65,49 @@
   </footer>
 
   <script>
-    const url = "https://script.google.com/macros/s/AKfycbwqLWL2VN8kk0X-0uuTQrBJqYuMvOIUApEbH3gVO015lFbQsOz5lH-UMC6VFEtI2IM9QA/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwMigpS1qTCoX90DZeUrUdI8ZZgvIlJuROE4Gx_ZrHEFRH66JrPYldOrdv5Ws4tsvdI7Q/exec?action=laporan";
+    const proxyURL = "https://corsproxy.io/?" + encodeURIComponent(scriptURL);
+
     let dataLaporan = { harian: [], bulanan: [] };
 
-    const hasilHarian = document.getElementById("hasilHarian");
-    const hasilBulanan = document.getElementById("hasilBulanan");
-    const loading = document.getElementById("loading");
-
-    // Ambil data dari Apps Script
-    fetch(url)
+    fetch(proxyURL)
       .then(res => res.json())
       .then(data => {
         dataLaporan = data;
-        loading.style.display = "none";
+        document.getElementById("error").classList.add("d-none");
       })
-      .catch(error => {
-        loading.innerHTML = `<div class="alert alert-danger">Gagal memuat data laporan.<br>${error.message}</div>`;
-        console.error("Gagal fetch:", error);
+      .catch(err => {
+        document.getElementById("error").classList.remove("d-none");
+        document.getElementById("error").innerHTML = "Gagal memuat data laporan.<br>" + err.message;
       });
 
     document.getElementById("tanggal").addEventListener("change", function () {
-      const tgl = this.value; // yyyy-mm-dd
+      const tgl = this.value;
       const found = dataLaporan.harian.find(r => r.tanggal === tgl);
+      const el = document.getElementById("hasilHarian");
 
       if (found) {
-        hasilHarian.innerHTML = `
+        el.innerHTML = `
           Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
-          Transaksi: ${found.transaksi} kali
+          Transaksi: ${found.transaksi}
         `;
       } else {
-        hasilHarian.innerText = `Tidak ada data untuk tanggal ${tgl}.`;
+        el.innerText = `Tidak ada data untuk tanggal ${tgl}.`;
       }
     });
 
     document.getElementById("bulan").addEventListener("change", function () {
-      const bln = this.value; // yyyy-mm
+      const bln = this.value;
       const found = dataLaporan.bulanan.find(r => r.bulan === bln);
+      const el = document.getElementById("hasilBulanan");
 
       if (found) {
-        hasilBulanan.innerHTML = `
+        el.innerHTML = `
           Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
-          Transaksi: ${found.transaksi} kali
+          Transaksi: ${found.transaksi}
         `;
       } else {
-        hasilBulanan.innerText = `Tidak ada data untuk bulan ${bln}.`;
+        el.innerText = `Tidak ada data untuk bulan ${bln}.`;
       }
     });
   </script>

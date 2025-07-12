@@ -9,7 +9,7 @@
     body {
       background: #fff3e0;
       font-family: 'Segoe UI', sans-serif;
-      padding: 40px 10px;
+      padding: 30px;
     }
     .container {
       max-width: 600px;
@@ -29,13 +29,9 @@
       margin-top: 20px;
     }
     .result {
-      margin-top: 10px;
+      margin-top: 15px;
       font-size: 16px;
       font-weight: 500;
-    }
-    .alert {
-      margin-top: 20px;
-      text-align: center;
     }
     footer {
       margin-top: 40px;
@@ -57,7 +53,7 @@
     <input type="month" id="bulan" class="form-control" />
     <div class="result" id="hasilBulanan">Silakan pilih bulan.</div>
 
-    <div id="error" class="alert alert-danger d-none"></div>
+    <div class="alert alert-danger mt-3 d-none" id="errorBox"></div>
   </div>
 
   <footer>
@@ -65,24 +61,23 @@
   </footer>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwMigpS1qTCoX90DZeUrUdI8ZZgvIlJuROE4Gx_ZrHEFRH66JrPYldOrdv5Ws4tsvdI7Q/exec?action=laporan";
-    const proxyURL = "https://corsproxy.io/?" + encodeURIComponent(scriptURL);
+    const originalURL = "https://script.google.com/macros/s/AKfycbwMigpS1qTCoX90DZeUrUdI8ZZgvIlJuROE4Gx_ZrHEFRH66JrPYldOrdv5Ws4tsvdI7Q/exec?action=laporan";
+    const proxyURL = "https://api.allorigins.win/get?url=" + encodeURIComponent(originalURL);
 
     let dataLaporan = { harian: [], bulanan: [] };
 
     fetch(proxyURL)
       .then(res => res.json())
-      .then(data => {
-        dataLaporan = data;
-        document.getElementById("error").classList.add("d-none");
+      .then(result => {
+        dataLaporan = JSON.parse(result.contents);
       })
       .catch(err => {
-        document.getElementById("error").classList.remove("d-none");
-        document.getElementById("error").innerHTML = "Gagal memuat data laporan.<br>" + err.message;
+        document.getElementById("errorBox").classList.remove("d-none");
+        document.getElementById("errorBox").innerText = `Gagal memuat data laporan. ${err.message}`;
       });
 
     document.getElementById("tanggal").addEventListener("change", function () {
-      const tgl = this.value;
+      const tgl = this.value; // format: yyyy-mm-dd
       const found = dataLaporan.harian.find(r => r.tanggal === tgl);
       const el = document.getElementById("hasilHarian");
 
@@ -97,7 +92,7 @@
     });
 
     document.getElementById("bulan").addEventListener("change", function () {
-      const bln = this.value;
+      const bln = this.value; // format: yyyy-mm
       const found = dataLaporan.bulanan.find(r => r.bulan === bln);
       const el = document.getElementById("hasilBulanan");
 

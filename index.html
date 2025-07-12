@@ -60,6 +60,14 @@
       font-size: 13px;
       color: #777;
     }
+    @media (max-width: 576px) {
+      h2 {
+        font-size: 22px;
+      }
+      table {
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -199,14 +207,14 @@
 
       const kembalian = uang - total;
       const data = {
-        items: items,
-        total: total,
-        uang: uang,
-        kembalian: kembalian,
-        metode: metode
+        items,
+        total,
+        uang,
+        kembalian,
+        metode
       };
 
-      fetch("https://script.google.com/macros/s/AKfycbwbagk8ASVdiUfAeiTV6Gx5U50I19Ws0jEvckME76V586ZTuYcmyIy6X3t8cWzAka1RIg/exec", { // GANTI LINK GS KAMU
+      fetch("https://script.google.com/macros/s/AKfycbwqLWL2VN8kk0X-0uuTQrBJqYuMvOIUApEbH3gVO015lFbQsOz5lH-UMC6VFEtI2IM9QA/exec", {
         method: "POST",
         body: JSON.stringify(data),
         mode: "no-cors"
@@ -220,7 +228,7 @@
         pesan += `\n*Uang Diterima:* Rp ${uang.toLocaleString()}`;
         pesan += `\n*Kembalian:* Rp ${kembalian.toLocaleString()}`;
 
-        const nomorWA = "+6285179856620"; // GANTI NOMOR WA TUJUAN
+        const nomorWA = "6285179856620";
         const waURL = `https://wa.me/${nomorWA}?text=${encodeURIComponent(pesan)}`;
         window.open(waURL, "_blank");
 

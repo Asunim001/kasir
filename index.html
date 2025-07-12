@@ -220,7 +220,7 @@
         pesan += `\n*Uang Diterima:* Rp ${uang.toLocaleString()}`;
         pesan += `\n*Kembalian:* Rp ${kembalian.toLocaleString()}`;
 
-        const nomorWA = "6285179856620"; // GANTI NOMOR WA TUJUAN
+        const nomorWA = "+6285179856620"; // GANTI NOMOR WA TUJUAN
         const waURL = `https://wa.me/${nomorWA}?text=${encodeURIComponent(pesan)}`;
         window.open(waURL, "_blank");
 

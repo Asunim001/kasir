@@ -65,19 +65,35 @@
   </footer>
 
   <script>
-   fetch('https://script.google.com/macros/s/AKfycbyfzEB2OYIc8lrp3iDsaUTU3-NjWOBuIgDJ_7j-xS2K9Q1pk-UeDwWItRNKojDJnugoQQ/exec')
-  .then(res => res.json())
-  .then(data => {
-    console.log("Laporan berhasil:", data);
-    // render data ke halaman
-  })
-  .catch(err => {
-    console.error("Gagal fetch data laporan:", err);
-  });
+    // ✅ Variabel global untuk menyimpan data laporan
+    let dataLaporan = {
+      harian: [],
+      bulanan: []
+    };
+
+    // ✅ Fetch data dari Apps Script
+    fetch('https://script.google.com/macros/s/AKfycbyfzEB2OYIc8lrp3iDsaUTU3-NjWOBuIgDJ_7j-xS2K9Q1pk-UeDwWItRNKojDJnugoQQ/exec')
+      .then(res => res.json())
+      .then(data => {
+        dataLaporan = data;
+        console.log("Laporan berhasil dimuat:", dataLaporan);
+      })
+      .catch(err => {
+        console.error("Gagal fetch data laporan:", err);
+        alert("Gagal mengambil data laporan. Silakan periksa koneksi atau backend.");
+      });
+
+    // ✅ Event listener filter harian
     document.getElementById("tanggal").addEventListener("change", function () {
-      const tgl = this.value; // format: yyyy-mm-dd
-      const found = dataLaporan.harian.find(r => r.tanggal === tgl);
+      const tgl = this.value;
       const el = document.getElementById("hasilHarian");
+
+      if (!dataLaporan.harian || dataLaporan.harian.length === 0) {
+        el.innerText = "Data belum dimuat. Silakan tunggu...";
+        return;
+      }
+
+      const found = dataLaporan.harian.find(r => r.tanggal === tgl);
 
       if (found) {
         let itemsList = "";
@@ -98,10 +114,17 @@
       }
     });
 
+    // ✅ Event listener filter bulanan
     document.getElementById("bulan").addEventListener("change", function () {
-      const bln = this.value; // format: yyyy-mm
-      const found = dataLaporan.bulanan.find(r => r.bulan === bln);
+      const bln = this.value;
       const el = document.getElementById("hasilBulanan");
+
+      if (!dataLaporan.bulanan || dataLaporan.bulanan.length === 0) {
+        el.innerText = "Data belum dimuat. Silakan tunggu...";
+        return;
+      }
+
+      const found = dataLaporan.bulanan.find(r => r.bulan === bln);
 
       if (found) {
         el.innerHTML = `

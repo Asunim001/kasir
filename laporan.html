@@ -65,19 +65,15 @@
   </footer>
 
   <script>
-    const baseURL = "https://script.google.com/macros/s/AKfycbyfzEB2OYIc8lrp3iDsaUTU3-NjWOBuIgDJ_7j-xS2K9Q1pk-UeDwWItRNKojDJnugoQQ/exec";
-    const url = `https://corsproxy.io/?${encodeURIComponent(baseURL)}`;
-    let dataLaporan = { harian: [], bulanan: [] };
-
-    fetch(url)
-      .then(res => res.json())
-      .then(data => dataLaporan = data)
-      .catch(err => {
-        document.getElementById("hasilHarian").innerText = "Gagal mengambil data laporan.";
-        document.getElementById("hasilBulanan").innerText = "Gagal mengambil data laporan.";
-        console.error("Gagal fetch data laporan:", err);
-      });
-
+   fetch('https://script.google.com/macros/s/AKfycbyfzEB2OYIc8lrp3iDsaUTU3-NjWOBuIgDJ_7j-xS2K9Q1pk-UeDwWItRNKojDJnugoQQ/exec')
+  .then(res => res.json())
+  .then(data => {
+    console.log("Laporan berhasil:", data);
+    // render data ke halaman
+  })
+  .catch(err => {
+    console.error("Gagal fetch data laporan:", err);
+  });
     document.getElementById("tanggal").addEventListener("change", function () {
       const tgl = this.value; // format: yyyy-mm-dd
       const found = dataLaporan.harian.find(r => r.tanggal === tgl);

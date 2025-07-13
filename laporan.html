@@ -52,12 +52,12 @@
     <h2>Laporan Omzet Kedai Anteiku</h2>
 
     <label for="tanggal">Pilih Tanggal (Harian)</label>
-    <input type="date" id="tanggal" class="form-control" />
-    <div class="result" id="hasilHarian">Silakan pilih tanggal.</div>
+    <input type="date" id="tanggal" class="form-control" disabled />
+    <div class="result" id="hasilHarian">⏳ Memuat data...</div>
 
     <label for="bulan">Pilih Bulan (Bulanan)</label>
-    <input type="month" id="bulan" class="form-control" />
-    <div class="result" id="hasilBulanan">Silakan pilih bulan.</div>
+    <input type="month" id="bulan" class="form-control" disabled />
+    <div class="result" id="hasilBulanan">⏳ Memuat data...</div>
   </div>
 
   <footer>
@@ -65,34 +65,35 @@
   </footer>
 
   <script>
-    // ✅ Variabel global untuk menyimpan data laporan
-    let dataLaporan = {
-      harian: [],
-      bulanan: []
-    };
+    let dataLaporan = { harian: [], bulanan: [] };
 
-    // ✅ Fetch data dari Apps Script
+    const tanggalInput = document.getElementById("tanggal");
+    const bulanInput = document.getElementById("bulan");
+    const hasilHarian = document.getElementById("hasilHarian");
+    const hasilBulanan = document.getElementById("hasilBulanan");
+
+    // Fetch data dari Google Apps Script
     fetch('https://script.google.com/macros/s/AKfycbyfzEB2OYIc8lrp3iDsaUTU3-NjWOBuIgDJ_7j-xS2K9Q1pk-UeDwWItRNKojDJnugoQQ/exec')
       .then(res => res.json())
       .then(data => {
         dataLaporan = data;
-        console.log("Laporan berhasil dimuat:", dataLaporan);
+        console.log("✅ Data laporan berhasil dimuat:", data);
+
+        // Aktifkan input dan ganti pesan awal
+        tanggalInput.disabled = false;
+        bulanInput.disabled = false;
+        hasilHarian.innerText = "Silakan pilih tanggal.";
+        hasilBulanan.innerText = "Silakan pilih bulan.";
       })
       .catch(err => {
-        console.error("Gagal fetch data laporan:", err);
-        alert("Gagal mengambil data laporan. Silakan periksa koneksi atau backend.");
+        console.error("❌ Gagal fetch data laporan:", err);
+        hasilHarian.innerText = "❌ Gagal memuat data.";
+        hasilBulanan.innerText = "❌ Gagal memuat data.";
       });
 
-    // ✅ Event listener filter harian
-    document.getElementById("tanggal").addEventListener("change", function () {
+    // Event listener: filter harian
+    tanggalInput.addEventListener("change", function () {
       const tgl = this.value;
-      const el = document.getElementById("hasilHarian");
-
-      if (!dataLaporan.harian || dataLaporan.harian.length === 0) {
-        el.innerText = "Data belum dimuat. Silakan tunggu...";
-        return;
-      }
-
       const found = dataLaporan.harian.find(r => r.tanggal === tgl);
 
       if (found) {
@@ -104,35 +105,28 @@
           }
           itemsList += "</ul>";
         }
-        el.innerHTML = `
+        hasilHarian.innerHTML = `
           Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
           Transaksi: <strong>${found.transaksi}</strong><br>
           ${itemsList}
         `;
       } else {
-        el.innerText = `Tidak ada data untuk tanggal ${tgl}.`;
+        hasilHarian.innerText = `Tidak ada data untuk tanggal ${tgl}.`;
       }
     });
 
-    // ✅ Event listener filter bulanan
-    document.getElementById("bulan").addEventListener("change", function () {
+    // Event listener: filter bulanan
+    bulanInput.addEventListener("change", function () {
       const bln = this.value;
-      const el = document.getElementById("hasilBulanan");
-
-      if (!dataLaporan.bulanan || dataLaporan.bulanan.length === 0) {
-        el.innerText = "Data belum dimuat. Silakan tunggu...";
-        return;
-      }
-
       const found = dataLaporan.bulanan.find(r => r.bulan === bln);
 
       if (found) {
-        el.innerHTML = `
+        hasilBulanan.innerHTML = `
           Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
           Transaksi: <strong>${found.transaksi}</strong>
         `;
       } else {
-        el.innerText = `Tidak ada data untuk bulan ${bln}.`;
+        hasilBulanan.innerText = `Tidak ada data untuk bulan ${bln}.`;
       }
     });
   </script>

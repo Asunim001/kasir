@@ -184,7 +184,7 @@
       const uang = parseInt(document.getElementById("uang").value || 0);
       const metode = document.getElementById("metode").value;
 
-      if (items.length === 0) return alert("Belum ada item.");
+      if (items.length === 0) return alert("Belum ada item.");https://script.google.com/macros/s/AKfycbwS2LHlI0GrWp0oDbZ-QJYPdJDggKFixI7oWhTAeVhlpHCLyxmnpz6wSiax_snWtxgc3A/exec
       if (!metode || metode.includes("Pilih")) return alert("Pilih metode pembayaran.");
       if (uang < total) return alert("Uang tidak cukup.");
 
@@ -204,7 +204,7 @@
       };
 
       // Ganti URL di bawah dengan URL Web App milikmu
-      fetch("https://script.google.com/macros/s/PASTE_WEB_APP_URL_HERE/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbwS2LHlI0GrWp0oDbZ-QJYPdJDggKFixI7oWhTAeVhlpHCLyxmnpz6wSiax_snWtxgc3A/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)

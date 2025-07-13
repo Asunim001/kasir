@@ -3,66 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Laporan Omzet Kedai Anteiku</title>
+  <title>Laporan Kedai Anteiku</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-      background: #fff3e0;
-      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff3e0;
       padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
     }
     .container {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
       max-width: 600px;
       margin: auto;
-      background: #fff;
-      border-radius: 16px;
-      padding: 25px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
     h2 {
-      text-align: center;
       color: #e53935;
-      margin-bottom: 30px;
+      text-align: center;
+      margin-bottom: 24px;
     }
     label {
       font-weight: bold;
-      margin-top: 20px;
+      margin-top: 15px;
     }
     .result {
-      margin-top: 15px;
       font-size: 15px;
+      margin-top: 10px;
     }
     .result strong {
       font-size: 16px;
     }
-    ul {
-      padding-left: 20px;
-      font-size: 14px;
-    }
     footer {
       margin-top: 40px;
       text-align: center;
-      font-size: 14px;
-      color: #888;
+      font-size: 13px;
+      color: #777;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Laporan Omzet Kedai Anteiku</h2>
+    <h2>Laporan Kedai Anteiku</h2>
 
-    <label for="tanggal">Pilih Tanggal (Harian)</label>
+    <label for="tanggal">Laporan Harian</label>
     <input type="date" id="tanggal" class="form-control" disabled />
     <div class="result" id="hasilHarian">⏳ Memuat data...</div>
 
-    <label for="bulan">Pilih Bulan (Bulanan)</label>
+    <label for="bulan">Laporan Bulanan</label>
     <input type="month" id="bulan" class="form-control" disabled />
     <div class="result" id="hasilBulanan">⏳ Memuat data...</div>
   </div>
 
-  <footer>
-    &copy; Kedai Anteiku 2025 - Laporan Omzet
-  </footer>
+  <footer>&copy; Kedai Anteiku 2025</footer>
 
   <script>
     let dataLaporan = { harian: [], bulanan: [] };
@@ -72,61 +66,49 @@
     const hasilHarian = document.getElementById("hasilHarian");
     const hasilBulanan = document.getElementById("hasilBulanan");
 
-    // Fetch data dari Google Apps Script
-    fetch('https://script.google.com/macros/s/AKfycbyfzEB2OYIc8lrp3iDsaUTU3-NjWOBuIgDJ_7j-xS2K9Q1pk-UeDwWItRNKojDJnugoQQ/exec')
+    // Ganti URL berikut dengan URL Web App kamu
+    const URL_LAPORAN = "https://script.google.com/macros/s/AKfycbxACPqD_E9ll-3f85fIjudvKlkS4F2ESqsRqlP8Cq_NvqYzYYdrt1wdh-u0TEqWE1sa4A/exec";
+
+    fetch(URL_LAPORAN)
       .then(res => res.json())
       .then(data => {
         dataLaporan = data;
-        console.log("✅ Data laporan berhasil dimuat:", data);
+        console.log("✅ Data laporan dimuat:", data);
 
-        // Aktifkan input dan ganti pesan awal
         tanggalInput.disabled = false;
         bulanInput.disabled = false;
         hasilHarian.innerText = "Silakan pilih tanggal.";
         hasilBulanan.innerText = "Silakan pilih bulan.";
       })
       .catch(err => {
-        console.error("❌ Gagal fetch data laporan:", err);
+        console.error("❌ Gagal fetch laporan:", err);
         hasilHarian.innerText = "❌ Gagal memuat data.";
         hasilBulanan.innerText = "❌ Gagal memuat data.";
       });
 
-    // Event listener: filter harian
     tanggalInput.addEventListener("change", function () {
       const tgl = this.value;
       const found = dataLaporan.harian.find(r => r.tanggal === tgl);
-
       if (found) {
-        let itemsList = "";
-        if (found.item) {
-          itemsList = "<ul>";
-          for (const [item, qty] of Object.entries(found.item)) {
-            itemsList += `<li>${item}: ${qty}x</li>`;
-          }
-          itemsList += "</ul>";
-        }
         hasilHarian.innerHTML = `
-          Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
-          Transaksi: <strong>${found.transaksi}</strong><br>
-          ${itemsList}
-        `;
-      } else {
-        hasilHarian.innerText = `Tidak ada data untuk tanggal ${tgl}.`;
-      }
-    });
-
-    // Event listener: filter bulanan
-    bulanInput.addEventListener("change", function () {
-      const bln = this.value;
-      const found = dataLaporan.bulanan.find(r => r.bulan === bln);
-
-      if (found) {
-        hasilBulanan.innerHTML = `
-          Total: <strong>Rp ${Number(found.total).toLocaleString("id-ID")}</strong><br>
+          Total: <strong>Rp ${found.total.toLocaleString("id-ID")}</strong><br>
           Transaksi: <strong>${found.transaksi}</strong>
         `;
       } else {
-        hasilBulanan.innerText = `Tidak ada data untuk bulan ${bln}.`;
+        hasilHarian.innerText = `Tidak ada data untuk ${tgl}`;
+      }
+    });
+
+    bulanInput.addEventListener("change", function () {
+      const bln = this.value;
+      const found = dataLaporan.bulanan.find(r => r.bulan === bln);
+      if (found) {
+        hasilBulanan.innerHTML = `
+          Total: <strong>Rp ${found.total.toLocaleString("id-ID")}</strong><br>
+          Transaksi: <strong>${found.transaksi}</strong>
+        `;
+      } else {
+        hasilBulanan.innerText = `Tidak ada data untuk ${bln}`;
       }
     });
   </script>

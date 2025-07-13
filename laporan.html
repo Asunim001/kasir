@@ -32,8 +32,9 @@
       font-size: 15px;
       margin-top: 10px;
     }
-    .result strong {
-      font-size: 16px;
+    ul {
+      padding-left: 20px;
+      font-size: 14px;
     }
     footer {
       margin-top: 40px;
@@ -45,7 +46,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Laporan Kedai Anteiku</h2>
+    <h2>Laporan Omzet Kedai Anteiku</h2>
 
     <label for="tanggal">Laporan Harian</label>
     <input type="date" id="tanggal" class="form-control" disabled />
@@ -66,15 +67,13 @@
     const hasilHarian = document.getElementById("hasilHarian");
     const hasilBulanan = document.getElementById("hasilBulanan");
 
-    // Ganti URL berikut dengan URL Web App kamu
-    const URL_LAPORAN = "https://script.google.com/macros/s/AKfycbxACPqD_E9ll-3f85fIjudvKlkS4F2ESqsRqlP8Cq_NvqYzYYdrt1wdh-u0TEqWE1sa4A/exec";
+    const URL_LAPORAN = "https://script.google.com/macros/s/AKfycbwqLWL2VN8kk0X-0uuTQrBJqYuMvOIUApEbH3gVO015lFbQsOz5lH-UMC6VFEtI2IM9QA/exec";
 
     fetch(URL_LAPORAN)
       .then(res => res.json())
       .then(data => {
         dataLaporan = data;
         console.log("✅ Data laporan dimuat:", data);
-
         tanggalInput.disabled = false;
         bulanInput.disabled = false;
         hasilHarian.innerText = "Silakan pilih tanggal.";
@@ -90,12 +89,19 @@
       const tgl = this.value;
       const found = dataLaporan.harian.find(r => r.tanggal === tgl);
       if (found) {
+        let itemList = "<ul>";
+        for (const [nama, jumlah] of Object.entries(found.item)) {
+          itemList += `<li>${nama} - ${jumlah}x</li>`;
+        }
+        itemList += "</ul>";
         hasilHarian.innerHTML = `
-          Total: <strong>Rp ${found.total.toLocaleString("id-ID")}</strong><br>
-          Transaksi: <strong>${found.transaksi}</strong>
+          <strong>Tanggal:</strong> ${tgl}<br>
+          <strong>Total Omzet:</strong> Rp ${found.total.toLocaleString("id-ID")}<br>
+          <strong>Jumlah Transaksi:</strong> ${found.transaksi}<br>
+          <strong>Item Terjual:</strong> ${itemList}
         `;
       } else {
-        hasilHarian.innerText = `Tidak ada data untuk ${tgl}`;
+        hasilHarian.innerText = `Tidak ada data untuk tanggal ${tgl}`;
       }
     });
 
@@ -104,11 +110,12 @@
       const found = dataLaporan.bulanan.find(r => r.bulan === bln);
       if (found) {
         hasilBulanan.innerHTML = `
-          Total: <strong>Rp ${found.total.toLocaleString("id-ID")}</strong><br>
-          Transaksi: <strong>${found.transaksi}</strong>
+          <strong>Bulan:</strong> ${bln}<br>
+          <strong>Total Omzet:</strong> Rp ${found.total.toLocaleString("id-ID")}<br>
+          <strong>Jumlah Transaksi:</strong> ${found.transaksi}
         `;
       } else {
-        hasilBulanan.innerText = `Tidak ada data untuk ${bln}`;
+        hasilBulanan.innerText = `Tidak ada data untuk bulan ${bln}`;
       }
     });
   </script>

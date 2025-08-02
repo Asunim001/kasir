@@ -134,12 +134,14 @@
     let total = 0;
 
     function tambah() {
-      const barang = document.getElementById("barang").value;
-      const topping = document.getElementById("topping").value;
+      const barang = document.getElementById("barang").value.trim();
+      const topping = document.getElementById("topping").value.trim();
 
       if (!barang) return alert("Pilih barang dulu!");
 
       const hargaBarang = barangHarga[barang];
+      if (!hargaBarang) return alert("Barang tidak ditemukan!");
+
       items.push({ name: barang, price: hargaBarang });
       total += hargaBarang;
 
@@ -205,7 +207,7 @@
         metode
       };
 
-      fetch("https://script.google.com/macros/s/AKfycbwzeHaRkpFg1s4qC45KFFvyq11Jwy7NsOtuBQtfSfCP3M-90prgk7KESn6QAyaP5ftvGw/exec", {
+      fetch("https://script.google.com/macros/s/YOUR-SCRIPT-ID-HERE/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)

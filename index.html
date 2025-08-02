@@ -67,7 +67,7 @@
       <option value="Dakbal">Dakbal - 15000</option>
       <option value="Pangsit Bojot">Pangsit Bojot - 15000</option>
       <option value="Dimsum Thailand">Dimsum Thailand - 15000</option>
-       <option value="Pangsit Kuah keju">Pangsit Kuah keju - 15000</option>
+      <option value="Pangsit Kuah Keju">Pangsit Kuah Keju - 15000</option>
     </select>
 
     <select id="topping" class="form-select mt-2">
@@ -119,7 +119,7 @@
       "Dimsum Mentai": 18000,
       "Dakbal": 15000,
       "Pangsit Bojot": 15000,
-      "Dimsum Thailand": 15000
+      "Dimsum Thailand": 15000,
       "Pangsit Kuah Keju": 15000
     };
 
@@ -186,14 +186,14 @@
       const uang = parseInt(document.getElementById("uang").value || 0);
       const metode = document.getElementById("metode").value;
 
-      if (items.length === 0) return alert("Belum ada item.");https://script.google.com/macros/s/AKfycbxwoArfD5XCiAbRy2nX5F9DQImTHASbkuU5VZ_5cGCjptaJGUw6dTaL0B6Nw7SkIebvow/exec
+      if (items.length === 0) return alert("Belum ada item.");
       if (!metode || metode.includes("Pilih")) return alert("Pilih metode pembayaran.");
       if (uang < total) return alert("Uang tidak cukup.");
 
       const kembalian = uang - total;
       const now = new Date();
-      const tanggal = now.toISOString().split("T")[0]; // yyyy-mm-dd
-      const jam = now.toTimeString().slice(0,5); // HH:mm
+      const tanggal = now.toISOString().split("T")[0];
+      const jam = now.toTimeString().slice(0,5);
 
       const data = {
         tanggal,
@@ -205,7 +205,6 @@
         metode
       };
 
-      // Ganti URL di bawah dengan URL Web App milikmu
       fetch("https://script.google.com/macros/s/AKfycbwzeHaRkpFg1s4qC45KFFvyq11Jwy7NsOtuBQtfSfCP3M-90prgk7KESn6QAyaP5ftvGw/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

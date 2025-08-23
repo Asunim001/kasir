@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -55,7 +56,7 @@
 <body>
   <div class="container">
     <h2>Kedai Anteiku</h2>
-    <h3>Pujasera Cicongkok</h3>
+    <h3>Cicongkok</h3>
 
     <select id="barang" class="form-select">
       <option disabled selected>-- Pilih Barang --</option>
@@ -210,12 +211,21 @@
         metode
       };
 
-      fetch("https://script.google.com/macros/s/YOUR-SCRIPT-ID-HERE/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-
+     let form = new FormData();
+    form.append("payload", JSON.stringify(data));
+    fetch("https://script.google.com/macros/s/AKfycbyd_rFfq5mnV9X72_o0phH7PpYnVxayRwKR5axFai2SIO52m2G6SuPoPYv721J0vTcT/exec", {
+    method: "POST",
+    body: JSON.stringify({
+    tanggal,
+    jam,
+    total,
+    uang,
+    kembalian,
+    metode,
+    items: items   // kirim array lengkap, bukan per item
+  })
+})
+      
       let pesan = `*Kedai Anteiku*\n\n`;
       items.forEach((item, i) => {
         pesan += `${i + 1}. ${item.name} - Rp ${item.price.toLocaleString()}\n`;

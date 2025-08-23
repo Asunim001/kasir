@@ -55,7 +55,7 @@
 <body>
   <div class="container">
     <h2>Kedai Anteiku</h2>
-    <h3>Pujasera Cicongkok</h3>
+    <h3>Petir</h3>
 
     <select id="barang" class="form-select">
       <option disabled selected>-- Pilih Barang --</option>
@@ -139,15 +139,20 @@
     function tambah() {
       const barang = document.getElementById("barang").value.trim();
       const topping = document.getElementById("topping").value.trim();
+
       if (!barang) return alert("Pilih barang dulu!");
+
       const hargaBarang = barangHarga[barang];
       if (!hargaBarang) return alert("Barang tidak ditemukan!");
+
       items.push({ name: barang, price: hargaBarang });
       total += hargaBarang;
+
       if (topping && toppingHarga[topping]) {
         items.push({ name: "Topping: " + topping, price: toppingHarga[topping] });
         total += toppingHarga[topping];
       }
+
       renderTable();
       document.getElementById("barang").selectedIndex = 0;
       document.getElementById("topping").selectedIndex = 0;
@@ -185,6 +190,7 @@
     function kirim() {
       const uang = parseInt(document.getElementById("uang").value || 0);
       const metode = document.getElementById("metode").value;
+
       if (items.length === 0) return alert("Belum ada item.");
       if (!metode || metode.includes("Pilih")) return alert("Pilih metode pembayaran.");
       if (uang < total) return alert("Uang tidak cukup.");
@@ -194,26 +200,48 @@
       const tanggal = now.toISOString().split("T")[0];
       const jam = now.toTimeString().slice(0,5);
 
-      const data = { tanggal, jam, items, total, uang, kembalian, metode };
+      const data = {
+        tanggal,
+        jam,
+        items,
+        total,
+        uang,
+        kembalian,
+        metode
+      };
 
-      // --- Kirim ke Apps Script ---
-      google.script.run.withSuccessHandler(function(res){
-        alert("Transaksi berhasil dikirim!");
-        resetData();
-      }).kirimData(data);
-
-      // --- Kirim WA ---
+     let form = new FormData();
+    form.append("payload", JSON.stringify(data));
+    fetch("https://script.google.com/macros/s/AKfycbyQu4IdjMvo7ByjJYLLXmdcpYz5olEQanPTUlTXGfkdE51RieEf-NbBJmKN9kzfjJOL4A/exec", {
+    method: "POST",
+    body: JSON.stringify({
+    tanggal,
+    jam,
+    total,
+    uang,
+    kembalian,
+    metode,
+    items: items   // kirim array lengkap, bukan per item
+  })
+})
+      
       let pesan = `*Kedai Anteiku*\n\n`;
       items.forEach((item, i) => {
-        pesan += `${i+1}. ${item.name} - Rp ${item.price.toLocaleString()}\n`;
+        pesan += `${i + 1}. ${item.name} - Rp ${item.price.toLocaleString()}\n`;
       });
       pesan += `\n*Total:* Rp ${total.toLocaleString()}`;
       pesan += `\n*Metode:* ${metode}`;
       pesan += `\n*Uang Diterima:* Rp ${uang.toLocaleString()}`;
       pesan += `\n*Kembalian:* Rp ${kembalian.toLocaleString()}`;
+
       const nomorWA = "6285179856620";
       const waURL = `https://wa.me/${nomorWA}?text=${encodeURIComponent(pesan)}`;
-      window.open(waURL, "_blank");
+      window.location.href = waURL;
+
+      setTimeout(() => {
+        alert("Transaksi berhasil dikirim!");
+        resetData();
+      }, 1000);
     }
 
     function resetData() {
